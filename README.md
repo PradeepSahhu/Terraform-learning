@@ -105,3 +105,55 @@ terraform apply
 ```
 
 ![alt text](images/image2.png)
+
+#### Terraform State
+
+(terraform.tfstate & terraform.tfstate.backup)
+Terraform state is a critical component of Terraform's infrastructure management. It is a file that Terraform uses to keep track of the resources it manages and their current state. The state file contains information about the resources that have been created, updated, or deleted by Terraform, as well as their attributes and dependencies.
+The state file is typically stored locally on the machine where Terraform is run, but it can also be stored remotely in a backend such as Amazon S3, Azure Blob Storage, or HashiCorp Consul. The state file is essential for Terraform to function properly, as it allows Terraform to determine what changes need to be made to the infrastructure when you run terraform apply.
+The state file is also used to track the dependencies between resources, which allows Terraform to create and manage resources in the correct order. For example, if you have a resource that depends on another resource, Terraform will ensure that the dependent resource is created before the resource that depends on it.
+It is important to manage the state file carefully, as it contains sensitive information about your infrastructure and can be a target for attackers. It is recommended to use a secure backend for storing the state file and to restrict access to it to only those who need it. Additionally, it is important to regularly back up the state file to prevent data loss in case of accidental deletion or corruption.
+
+## Seperation of concerns
+
+In Terraform, separation of concerns is a design principle that encourages the organization of infrastructure code into modular and reusable components. This approach helps to improve the maintainability, readability, and scalability of your Terraform configurations.
+
+- Variable.tf : This file is used to define input variables that can be used throughout your Terraform configuration. It allows you to parameterize your infrastructure code, making it more flexible and reusable.
+
+example of variable.tf
+
+```hcl
+variable "instance_type" {
+  description = "The type of instance to create"
+  type        = string
+  default     = "t2.micro"
+}
+```
+
+- main.tf : This file is typically used to define the main resources and infrastructure components that you want to create or manage. It contains the core logic of your Terraform configuration.
+
+example of main.tf
+
+```hcl
+resource "aws_instance" "example" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = var.instance_type # using the variable defined in variable.tf "${var.instance_type}"
+    tags = {
+        Name = "ExampleInstance"
+    }
+}
+```
+
+- providers.tf : This file is used to specify the providers that Terraform will use to interact with the cloud platforms or services. It defines the provider configurations, such as authentication credentials and region settings.
+
+example of providers.tf
+
+`````hcl
+provider "aws" {
+    region = "us-east-1"
+    }
+    ````
+
+`````
+
+- outputs.tf : This file is used to define output values that can be used to display information about the resources created by Terraform. It allows you to extract and display specific attributes of your infrastructure after it has been provisioned.
