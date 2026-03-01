@@ -1,1 +1,9 @@
 terraform-key-pair.pem
+.terraform.*
+.terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
