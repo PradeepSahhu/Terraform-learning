@@ -114,6 +114,64 @@ The state file is typically stored locally on the machine where Terraform is run
 The state file is also used to track the dependencies between resources, which allows Terraform to create and manage resources in the correct order. For example, if you have a resource that depends on another resource, Terraform will ensure that the dependent resource is created before the resource that depends on it.
 It is important to manage the state file carefully, as it contains sensitive information about your infrastructure and can be a target for attackers. It is recommended to use a secure backend for storing the state file and to restrict access to it to only those who need it. Additionally, it is important to regularly back up the state file to prevent data loss in case of accidental deletion or corruption.
 
+## Terraform taint for aws_instance.aliasname
+
+The command below marks one specific resource in state as tainted:
+
+```bash
+terraform taint aws_instance.aliasname
+```
+
+In this format:
+
+- aws_instance is the resource type
+- aliasname is the local resource name from your Terraform code
+
+Example:
+
+```hcl
+resource "aws_instance" "web" {
+  ami           = "ami-xxxxxxxxxxxxxxxxx"
+  instance_type = "t2.micro"
+}
+```
+
+For this resource, the taint command is:
+
+```bash
+terraform taint aws_instance.web
+```
+
+What it does:
+
+- Updates Terraform state and marks only that resource as damaged or dirty
+- Does not immediately recreate anything
+- On the next terraform plan or terraform apply, Terraform proposes destroy and recreate for that resource
+
+How it works step by step:
+
+1. You run terraform taint on a specific resource address.
+2. Terraform writes a tainted flag in state for that address.
+3. During plan/apply, Terraform sees the tainted object and schedules replacement.
+4. Apply performs replacement and then clears the tainted state.
+
+When to use it:
+
+- Instance is reachable in cloud but unhealthy or misconfigured
+- Manual changes were made outside Terraform and you want a clean rebuild
+- Bootstrapping scripts failed and you want to force re-provisioning
+
+Important note:
+
+- terraform taint is deprecated in newer workflows.
+- Preferred modern approach is:
+
+```bash
+terraform apply -replace="aws_instance.web"
+```
+
+The replace option is safer because replacement intent is explicit in the same apply command and easier to review in team workflows.
+
 ## Seperation of concerns
 
 In Terraform, separation of concerns is a design principle that encourages the organization of infrastructure code into modular and reusable components. This approach helps to improve the maintainability, readability, and scalability of your Terraform configurations.
