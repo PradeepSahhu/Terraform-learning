@@ -215,3 +215,257 @@ provider "aws" {
 `````
 
 - outputs.tf : This file is used to define output values that can be used to display information about the resources created by Terraform. It allows you to extract and display specific attributes of your infrastructure after it has been provisioned.
+
+## Repository folder overview (what each project does)
+
+This repo has multiple Terraform practice projects. Each folder can be executed independently.
+
+### 1) terraform-ec2
+
+Purpose:
+
+- Provision one Ubuntu EC2 instance in `us-east-1`.
+
+Highlights:
+
+- Uses `t2.micro`
+- Uses key pair: `terraform-key-pair`
+- Uses security group: `terraform-security-group`
+
+Run:
+
+```bash
+cd terraform-ec2
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+### 2) terraform-ec2-static-website
+
+Purpose:
+
+- Provision EC2 and configure a static web page using user data script.
+
+Highlights:
+
+- Uses `setupstaticwebsite.sh`
+- Installs Apache (`apache2`)
+- Creates `/var/www/html/index.html` with sample content
+
+Run:
+
+```bash
+cd terraform-ec2-static-website
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+### 3) terraform-provision-s3-bucket
+
+Purpose:
+
+- Provision a secure S3 bucket with production-like safety defaults.
+
+Highlights:
+
+- Bucket creation
+- Versioning enabled
+- Public access block enabled
+- Server-side encryption (`AES256`)
+- Lifecycle rule for old object versions
+
+Important:
+
+- S3 bucket name must be globally unique. Update bucket name before apply.
+
+Run:
+
+```bash
+cd terraform-provision-s3-bucket
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+### 4) terraform-with-seperation-of-concerns
+
+Purpose:
+
+- Demonstrates Terraform file separation pattern.
+
+Structure:
+
+- `provider.tf` -> provider config
+- `variables.tf` -> variable declarations
+- `main.tf` -> resource definitions
+
+Run:
+
+```bash
+cd terraform-with-seperation-of-concerns
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+### 5) terraform-with-outputfile
+
+Purpose:
+
+- Demonstrates Terraform output values after provisioning EC2.
+
+Outputs exposed:
+
+- instance public IP
+- instance public DNS
+- instance ID
+- instance ARN
+- instance availability zone
+- instance tags
+
+Run:
+
+```bash
+cd terraform-with-outputfile
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+terraform output
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+### 6) terraform-infra-modules
+
+Purpose:
+
+- Demonstrates reusable modules approach.
+
+Structure:
+
+- `modules/ec2` -> EC2 module
+- `modules/s3` -> S3 module
+- root module calls both modules
+
+Run:
+
+```bash
+cd terraform-infra-modules
+terraform fmt
+terraform validate
+terraform init
+terraform plan
+terraform apply
+terraform output
+```
+
+Destroy:
+
+```bash
+terraform destroy --auto-approve
+```
+
+## Useful Terraform commands you can add to daily workflow
+
+```bash
+terraform fmt -recursive
+terraform validate
+terraform show
+terraform state list
+terraform output
+```
+
+## Variable override examples
+
+You can override defaults using `-var`:
+
+```bash
+terraform apply \
+  -var="ami=ami-xxxxxxxxxxxxxxxxx" \
+  -var="instance_type=t3.micro" \
+  -var="key_name=my-keypair"
+```
+
+Or with `terraform.tfvars`:
+
+```hcl
+ami           = "ami-xxxxxxxxxxxxxxxxx"
+instance_type = "t2.micro"
+key_name      = "terraform-key-pair"
+```
+
+## Common issues and fixes
+
+1. InvalidKeyPair.NotFound
+
+- Key pair does not exist in selected region. Create/import the key pair in `us-east-1`.
+
+2. Security group not found
+
+- Ensure `terraform-security-group` exists or update config with your actual security group.
+
+3. BucketAlreadyExists or BucketAlreadyOwnedByYou
+
+- Update bucket name to a globally unique value.
+
+4. AccessDenied
+
+- Check IAM user/role policy for EC2/S3 permissions.
+
+5. Provider plugin issues
+
+- Run `terraform init -upgrade`.
+
+## Best practices for this repo
+
+- Run one folder at a time (each folder keeps its own state).
+- Always run `terraform plan` before `terraform apply`.
+- Destroy resources after practice to avoid AWS charges.
+- Avoid hardcoding secrets in `.tf` files.
+- Keep state files out of Git by using `.gitignore`.
+
+## Good next step (optional enhancement)
+
+- Add `versions.tf` in each folder to pin Terraform and AWS provider versions.
+- Add remote state backend (S3 + DynamoDB lock table) for team usage.
+- Replace hardcoded security group references with variables everywhere.
