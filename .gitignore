@@ -7,3 +7,29 @@ terraform-key-pair.pem
 *.tfvars.json
 .terraformrc
 terraform.rc
+
+# Terraform plan files
+*.tfplan
+*.plan
+
+# Terraform crash/debug logs
+crash.log
+crash.*.log
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform CLI config and local cache
+.terraform.d/
+plugin-cache/
+
+# Terragrunt cache
+.terragrunt-cache/
+
+# OS/editor artifacts
+.DS_Store
+.idea/
+.vscode/
